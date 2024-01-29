@@ -3,7 +3,17 @@
   "version": "0.0.1",
   "author": "melodicgin",
   "description": "Animation restoration of the lumalabs.ai website homepage.",
-  "keywords": ["luma", "fluid", "WebGL", "luma-fluid", "luma-fluid-lib", "luma-fluid-library", "luma-fluid-component", "luma-fluid-components", "luma-fluid-components-library"],
+  "keywords": [
+    "luma",
+    "fluid",
+    "WebGL",
+    "luma-fluid",
+    "luma-fluid-lib",
+    "luma-fluid-library",
+    "luma-fluid-component",
+    "luma-fluid-components",
+    "luma-fluid-components-library"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/gin-melodic/luma-fluid-lib"
@@ -39,6 +49,7 @@
     "eslint": "^8.55.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
+    "json": "^11.0.0",
     "typescript": "^5.2.2",
     "vite": "^5.0.8",
     "vite-plugin-dts": "^3.7.2"
