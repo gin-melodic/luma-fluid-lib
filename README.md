@@ -7,6 +7,8 @@ A library for creating fluid animations like [Luma](https://lumalabs.ai/) websit
 
 ![demonstration effect](https://s2.loli.net/2024/01/29/ABDft7cOkd5C48M.webp)
 
+> Demo site: https://luma-fluid-demo.vercel.app/
+
 ## Integrate
 
 ```shell
