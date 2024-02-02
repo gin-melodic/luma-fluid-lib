@@ -1,3 +1,4 @@
+import { FluidSetting, IFluidSettings } from './Settings';
 import { XBox } from "../models/XBox.ts";
 import { XTexture } from "../models/texture/texture.ts";
 import { XFluidShader } from "../models/shader/fluid.ts";
@@ -30,7 +31,8 @@ export declare class FluidRender {
         texture: XTexture;
     }> | null;
     lumaLogoTexture: XTexture | null;
-    settings: any;
+    saveSettings: FluidSetting;
+    settings: FluidSetting;
     particleCount: number;
     showDebugTextures: boolean;
     postProcessingEnabled: boolean;
@@ -50,7 +52,7 @@ export declare class FluidRender {
     hx__closures__: {
         [key: number]: object;
     } | null;
-    constructor(gl: WebGLRenderingContext | WebGL2RenderingContext, logoSrc: string, textureSrc: string);
+    constructor(gl: WebGLRenderingContext | WebGL2RenderingContext, logoSrc: string, textureSrc: string, settings?: IFluidSettings);
     updateLumaLogo(): void;
     fluid: FluidManager;
     offscreenTarget: XDiverRenderTarget;
@@ -68,5 +70,6 @@ export declare class FluidRender {
     onPointerDown(key: number, type: number, x: number, y: number, buttonState: number, _i: number, pressure: number, radius: number, angle: number, altitudeAngle: number, azimuthAngle: number): void;
     onPointerChange(key: number, type: number, x: number, y: number, buttonState: number, _i: number, pressure: number, radius: number, angle: number, altitudeAngle: number, azimuthAngle: number): void;
     onPointerUp(key: number): void;
+    updateSettings(settings: IFluidSettings): void;
 }
 export {};

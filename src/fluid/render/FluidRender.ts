@@ -1,6 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-import { FluidSetting } from './Settings.js'
+import {FluidSetting, IFluidSettings} from './Settings'
 import {XBox} from "../models/XBox.ts";
 import {XTextureBase} from "../models/texture/base.ts";
 import {ResetAlignFilp, XTexture} from "../models/texture/texture.ts";
@@ -49,6 +47,8 @@ export class FluidRender {
   savedSettings: string | null = null
   lumaLogoPromise: Promise<{img: HTMLImageElement, texture: XTexture}> | null = null
   lumaLogoTexture: XTexture | null = null
+  // savedSettings use for restore
+  saveSettings: FluidSetting = new FluidSetting()
   settings = new FluidSetting()
   particleCount = 65536
   showDebugTextures = false
@@ -70,12 +70,15 @@ export class FluidRender {
 
   constructor(gl: WebGLRenderingContext | WebGL2RenderingContext,
               logoSrc: string,
-              textureSrc: string) {
+              textureSrc: string, settings?: IFluidSettings) {
     this.gl = gl
     this.drawingBufferWidth = gl.drawingBufferWidth
     this.drawingBufferHeight = gl.drawingBufferHeight
     this.logoSrc = logoSrc
     this.textureSrc = textureSrc
+    if (settings) {
+      this.updateSettings(settings)
+    }
     this.gl.getExtension('OES_standard_derivatives')
     this.updateLumaLogo();
     this.screenBuffer = gl.getParameter(gl.FRAMEBUFFER_BINDING);
@@ -84,13 +87,6 @@ export class FluidRender {
       console.log(log);
       return;
     }
-    // const debugInfo = gl.getExtension('WEBGL_debug_renderer_info') ? {
-    //   renderer: gl.getParameter(37446),
-    //   vendor: gl.getParameter(37445),
-    // } : {
-    //   renderer: gl.getParameter(gl.RENDERER),
-    //   vendor: gl.getParameter(gl.VENDOR),
-    // };
     gl.disable(gl.DEPTH_TEST);
     gl.disable(gl.CULL_FACE);
     gl.disable(gl.DITHER);
@@ -180,87 +176,86 @@ export class FluidRender {
     this.offscreenTarget = new XDiverRenderTarget(this.gl, this.fluid.width, this.fluid.height, new XTextureBase(this.gl, e.format, e.internalFormat, e.dataType, e.filtering, e.filtering, 33071, 33071));
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const that = this;
-    this.settings.setChangeCallbacks({
-      onChangeVersion: function () { },
-      onChangePaused: function () { },
-      onChangeTimestepMultiplier: function () { },
-      onChangeFluidPhysicsScale: function (a: number) {
-        const d = that.fluid!;
-        d.physicsScale = a;
-        d.updateBaseUniforms();
-      },
-      onChangeSurfaceDecayFactor: function (a: XUniformDataType) {
-        const d = that.updateSurfaceShader!.decayFactor!;
-        d.dirty = true;
-        d.data = a;
-      },
-      onChangeMotionDecayFactor: function (a: XUniformDataType) {
-        const d = that.updateForceShader!.decayFactor!;
-        d.dirty = true;
-        d.data = a;
-      },
-      onChangeDragCoefficient: function (a: XUniformDataType) {
-        const d = that.updateForceShader!.dragCoefficient!;
-        d.dirty = true;
-        d.data = a;
-      },
-      onChangeDragSpeed: function (a: XUniformDataType) {
-        const d = that.updateForceShader!.dragSpeed!;
-        d.dirty = true;
-        d.data = a;
-      },
-      onChangePeriodicBoundary: function (a: boolean) {
-        const d = that.fluid!;
-        d.periodicBoundary = a;
-        d.setWrapMode(a ? 10497 : 33071);
-        d.updateBaseUniforms();
-      },
-      onChangeBackgroundMultiplier: function (a: XUniformDataType) {
-        const d = that.updateSurfaceShader!.backgroundMultiplier!;
-        d.dirty = true;
-        d.data = a;
-      },
-      onChangeFluidIterations: function (a: number) {
-        that.fluid!.solverIterations = a;
-      },
-      onChangeGamma: function (a: number) {
-        const d = that.renderFluidShader!.invGamma!;
-        d.dirty = true;
-        d.data = 1 / a;
-      },
-      onChangeRefraction: function (a: number) {
-        const d = that.renderFluidShader!.refraction!;
-        d.dirty = true;
-        d.data = a;
-      },
-      onChangeChromaticAberration: function (a: number) {
-        const d = that.renderFluidShader!.chromaticAberration!;
-        d.dirty = true;
-        d.data = a;
-      },
-      onChangeInnerDarkening: function (a: number) {
-        const d = that.renderFluidShader!.innerDarkening!;
-        d.dirty = true;
-        d.data = a;
-      },
-      onChangeBevelCurveRadius: function () {
-        that.updateLumaLogo();
-      },
-      onChangeGradientBackground: function (a: number) {
-        const d = that.renderFluidShader!.gradientBackground!;
-        d.dirty = true;
-        d.data = a;
-      },
-      onChangeFluidScale: function () {
-        that.resize(that.drawingBufferWidth, that.drawingBufferHeight);
-      },
-      onChangeSimulationScale: function () {
-        that.resize(that.drawingBufferWidth, that.drawingBufferHeight);
-      },
-      onChangePowerOf2Fluid: function () {
-        that.resize(that.drawingBufferWidth, that.drawingBufferHeight);
+
+    this.settings.onChangeVersion = () => { }
+    this.settings.onChangePaused = () => { }
+    this.settings.onChangeTimestepMultiplier = () => { }
+    this.settings.onChangeFluidPhysicsScale = (a: number) => {
+      const d = this.fluid!;
+      d.physicsScale = a;
+      d.updateBaseUniforms();
+    }
+    this.settings.onChangeSurfaceDecayFactor = (a: XUniformDataType) => {
+      const d = this.updateSurfaceShader!.decayFactor!;
+      d.dirty = true;
+      d.data = a;
+    }
+    this.settings.onChangeMotionDecayFactor = (a: XUniformDataType) => {
+      const d = this.updateForceShader!.decayFactor!;
+      d.dirty = true;
+      d.data = a;
+    }
+    this.settings.onChangeDragCoefficient = (a: XUniformDataType) => {
+      const d = this.updateForceShader!.dragCoefficient!;
+      d.dirty = true;
+      d.data = a;
+    }
+    this.settings.onChangeDragSpeed = (a: XUniformDataType) => {
+      const d = this.updateForceShader!.dragSpeed!;
+      d.dirty = true;
+      d.data = a;
+    }
+    this.settings.onChangePeriodicBoundary = (a: boolean) => {
+      const d = this.fluid!;
+      d.periodicBoundary = a;
+      d.setWrapMode(a ? 10497 : 33071);
+      d.updateBaseUniforms();
+    }
+    this.settings.onChangeBackgroundMultiplier = (a: XUniformDataType) => {
+      const d = this.updateSurfaceShader!.backgroundMultiplier!;
+      d.dirty = true;
+      d.data = a;
+    }
+    this.settings.onChangeFluidIterations = (a: number) => {
+      this.fluid!.solverIterations = a;
+    }
+    this.settings.onChangeGamma = (a: number) => {
+      const d = this.renderFluidShader!.invGamma!;
+      d.dirty = true;
+      d.data = 1 / a;
+    }
+    this.settings.onChangeRefraction = (a: number) => {
+      const d = this.renderFluidShader!.refraction!;
+      d.dirty = true;
+      d.data = a;
+    }
+    this.settings.onChangeChromaticAberration = (a: number) => {
+      const d = this.renderFluidShader!.chromaticAberration!;
+      d.dirty = true;
+      d.data = a;
+    }
+    this.settings.onChangeInnerDarkening = (a: number) => {
+      const d = this.renderFluidShader!.innerDarkening!;
+      d.dirty = true;
+      d.data = a;
+    }
+    this.settings.onChangeBevelCurveRadius = () => {
+      this.updateLumaLogo();
+    }
+    this.settings.onChangeGradientBackground = (a: number) => {
+      const d = this.renderFluidShader!.gradientBackground!;
+      d.dirty = true;
+      d.data = a;
+    }
+    this.settings.onChangeFluidScale = () => {
+      this.resize(this.drawingBufferWidth, this.drawingBufferHeight);
+    }
+    this.settings.onChangeSimulationScale = () => {
+      this.resize(this.drawingBufferWidth, this.drawingBufferHeight);
+    },
+      this.settings.onChangePowerOf2Fluid = () => {
+        this.resize(this.drawingBufferWidth, this.drawingBufferHeight);
       }
-    });
     this.bloomFilter = new BloomFilter(this.gl);
     const textureImg = new Image();
     textureImg.crossOrigin = "anonymous";
@@ -858,5 +853,15 @@ export class FluidRender {
   onPointerUp(key: number) {
     this.activePointers.remove(String(key));
     this.activePointersLastFrame.remove(String(key));
+  }
+
+  updateSettings(settings: IFluidSettings) {
+    if (settings instanceof FluidSetting) {
+      const s = settings as FluidSetting
+      this.settings = s
+    } else {
+      // object
+      this.settings = FluidSetting.parse(settings)
+    }
   }
 }

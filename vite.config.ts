@@ -2,13 +2,27 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'node:path'
 import dts from 'vite-plugin-dts'
+import { fileURLToPath } from "node:url";
+
+const filesNeedToExclude = [
+  "src/demo/App.css",
+  "src/demo/App.tsx",
+  "src/demo/main.tsx",
+  "src/demo/bg.jpg",
+  "src/demo/words.png",
+];
+
+const filesPathToExclude = filesNeedToExclude.map((src) => {
+  return fileURLToPath(new URL(src, import.meta.url));
+});
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     react(),
     dts({
-      insertTypesEntry: true
+      insertTypesEntry: true,
+      exclude: ['**/demo/*']
     }),
   ],
   build: {
@@ -19,12 +33,11 @@ export default defineConfig({
       fileName: (format) => `fluid.${format}.js`
     },
     rollupOptions: {
-      external: ['react', 'react-dom'],
+      external: ['react', 'react-dom', ...filesPathToExclude],
       output: {
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
-          'styled-components': 'styled',
         }
       }
     }

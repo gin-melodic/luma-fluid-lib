@@ -1,17 +1,16 @@
 import React, {useRef, useState} from "react";
-import {Fluid} from "./fluid.ts";
+import {Fluid} from "./fluid";
+import {IFluidSettings} from "./render/Settings.ts";
 
 interface XFluidProps {
   width?: number;
   height?: number;
   style?: React.CSSProperties;
-
   // logo image may prue black words and transparent background, edge feathering is recommended
   logoSrc: string;
-
   // texture image may be a 2D texture
   textureSrc: string;
-
+  settings?: IFluidSettings
   onError?: (error: Error) => void;
 }
 
@@ -31,7 +30,7 @@ export const XFluid = (prop: XFluidProps) => {
       return
     }
     setGl(gl)
-    new Fluid(canvas, gl, prop.logoSrc, prop.textureSrc)
+    new Fluid(canvas, gl, prop.logoSrc, prop.textureSrc, prop.settings)
   }, [gl, prop])
 
   return (

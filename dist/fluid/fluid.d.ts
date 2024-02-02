@@ -1,6 +1,7 @@
 import { XDict } from "./models/XDict.ts";
 import { XBox } from "./models/XBox.ts";
 import { FluidRender } from "./render/FluidRender.ts";
+import { IFluidSettings } from "./render/Settings.ts";
 declare global {
     interface Window {
         $haxeUID: number;
@@ -29,5 +30,5 @@ export declare class Fluid {
     fluid: FluidRender;
     frameLoopHandle: number | null;
     eventHandlers: XDict<object[]>;
-    constructor(canvas: HTMLCanvasElement, gl: WebGL2RenderingContext, logoSrc: string, textureSrc: string);
+    constructor(canvas: HTMLCanvasElement, gl: WebGL2RenderingContext, logoSrc: string, textureSrc: string, settings?: IFluidSettings);
 }
