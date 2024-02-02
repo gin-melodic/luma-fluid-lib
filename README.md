@@ -18,10 +18,35 @@ $ npm install luma-fluid-lib
 ## Usage
 
 ```tsx
+// A configuration dictionary for controlling shader parameters
+const settings: IFluidSettings = {
+  version: 1,
+  paused: false,
+  fluidPhysicsScale: 20,
+  timestepMultiplier: 1,
+  surfaceDecayFactor: 2,
+  motionDecayFactor: 0,
+  dragCoefficient: 0.8,
+  dragSpeed: 1,
+  periodicBoundary: true,
+  backgroundMultiplier: 1,
+  refraction: 0.21,
+  chromaticAberration: 0.15,
+  innerDarkening: 0.1,
+  bevelCurveRadius: 5,
+  gradientBackground: 0.5,
+  gamma: 5.1,
+  fluidIterations: 8,
+  fluidScale: 1.5,
+  simulationScale: 0.25,
+  powerOf2Fluid: true,
+}
+
 <XFluid
     logoSrc='https://s2.loli.net/2024/01/29/mRrH5IQYucl4GCp.png'
     textureSrc='https://s2.loli.net/2024/01/29/rg3meSMxcUsRCao.jpg'
     width={1300} height={800}
+    settings={settings}
     onError={(error: Error) => console.error(error)}
 />
 ```
