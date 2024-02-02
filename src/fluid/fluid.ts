@@ -1,6 +1,7 @@
 import {XDict} from "./models/XDict.ts";
 import {XBox} from "./models/XBox.ts";
 import {FluidRender} from "./render/FluidRender.ts";
+import {IFluidSettings} from "./render/Settings.ts";
 
 declare global {
   interface Window {
@@ -59,7 +60,7 @@ export class Fluid {
   eventHandlers: XDict<object[]> = new XDict();
 
 
-  constructor(canvas: HTMLCanvasElement, gl: WebGL2RenderingContext, logoSrc: string, textureSrc: string) {
+  constructor(canvas: HTMLCanvasElement, gl: WebGL2RenderingContext, logoSrc: string, textureSrc: string, settings?: IFluidSettings) {
     window.$haxeUID |= 0;
     this.canvas = canvas
 
@@ -79,7 +80,7 @@ export class Fluid {
     this.gl.canvas.addEventListener('webglcontextlost', () => {})
     this.gl.canvas.addEventListener('webglcontextrestored', () => {})
     this.screenBuffer = gl.getParameter(gl.FRAMEBUFFER_BINDING)
-    this.fluid = new FluidRender(gl, logoSrc, textureSrc)
+    this.fluid = new FluidRender(gl, logoSrc, textureSrc, settings)
     let m: (() => void)
     const g = window.devicePixelRatio;
     (m = () => {
